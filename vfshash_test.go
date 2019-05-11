@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 	"syscall"
 	"testing"
 
@@ -72,6 +73,12 @@ func TestFilePaths(t *testing.T) {
 		_, err := fs.Open(name)
 		assert.EqualError(t, err,
 			(&os.PathError{Op: "open", Path: name, Err: os.ErrNotExist}).Error(),
+			"file accessable by original path")
+
+		relName := strings.TrimPrefix(name, "/")
+		_, err = fs.Open(relName)
+		assert.EqualError(t, err,
+			(&os.PathError{Op: "open", Path: relName, Err: os.ErrNotExist}).Error(),
 			"file accessable by original path")
 
 		f, err := fs.Open(hashed)

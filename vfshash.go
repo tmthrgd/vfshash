@@ -47,6 +47,9 @@ func (fs *FileSystem) Open(name string) (http.File, error) {
 		return nil, fs.err
 	}
 
+	origName := name
+	name = cleanPath(name)
+
 	switch name {
 	case "/":
 		f, err := fs.fs.Open(name)
@@ -59,9 +62,8 @@ func (fs *FileSystem) Open(name string) (http.File, error) {
 		return assetsFile{bytes.NewReader(fs.namesJSON)}, nil
 	}
 
-	origName, ok := fs.namesRev[name]
-	if ok {
-		f, err := fs.fs.Open(origName)
+	if unhashed, ok := fs.namesRev[name]; ok {
+		f, err := fs.fs.Open(unhashed)
 		if err != nil {
 			return nil, err
 		}
@@ -79,7 +81,7 @@ func (fs *FileSystem) Open(name string) (http.File, error) {
 		return nil, err
 	} else if !info.IsDir() {
 		f.Close()
-		return nil, &os.PathError{Op: "open", Path: name, Err: os.ErrNotExist}
+		return nil, &os.PathError{Op: "open", Path: origName, Err: os.ErrNotExist}
 	}
 
 	return &dirNamesFile{f, fs, name}, nil
@@ -202,3 +204,11 @@ type assetsFile struct{ *bytes.Reader }
 func (assetsFile) Close() error                             { return nil }
 func (assetsFile) Readdir(count int) ([]os.FileInfo, error) { return nil, syscall.ENOTDIR }
 func (f assetsFile) Stat() (os.FileInfo, error)             { return assetsFileInfo{f.Size()}, nil }
+
+func cleanPath(path string) string {
+	if pathpkg.IsAbs(path) {
+		return pathpkg.Clean(path)
+	}
+
+	return pathpkg.Clean("/" + path)
+}

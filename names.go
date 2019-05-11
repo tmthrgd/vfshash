@@ -46,6 +46,8 @@ func (n *AssetNames) load() {
 func (n *AssetNames) Lookup(name string) string {
 	n.once.Do(n.load)
 
+	name = cleanPath(name)
+
 	if hashed, ok := n.names[name]; ok {
 		return hashed
 	}
