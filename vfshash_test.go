@@ -10,10 +10,9 @@ import (
 	"syscall"
 	"testing"
 
+	"github.com/shurcooL/httpfs/vfsutil"
 	"github.com/stretchr/testify/assert"
-
 	"github.com/stretchr/testify/require"
-
 	"golang.org/x/tools/godoc/vfs/httpfs"
 	"golang.org/x/tools/godoc/vfs/mapfs"
 )
@@ -155,4 +154,12 @@ func testDirHashes(t *testing.T, files []os.FileInfo, dir string) {
 		assert.True(t, foundHashed,
 			"expected to find %s in Readdir result", hashed)
 	}
+}
+
+func TestRootIsFile(t *testing.T) {
+	fs := NewFileSystem(vfsutil.File("vfshash.go")) // this file is known to exist
+
+	_, err := fs.Open("/")
+	assert.EqualError(t, err,
+		(&os.PathError{Op: "open", Path: "/", Err: os.ErrNotExist}).Error())
 }

@@ -50,15 +50,7 @@ func (fs *FileSystem) Open(name string) (http.File, error) {
 	origName := name
 	name = cleanPath(name)
 
-	switch name {
-	case "/":
-		f, err := fs.fs.Open(name)
-		if err != nil {
-			return nil, err
-		}
-
-		return rootFile{&dirNamesFile{f, fs, name}}, nil
-	case assetsJSONPath:
+	if name == assetsJSONPath {
 		return assetsFile{bytes.NewReader(fs.namesJSON)}, nil
 	}
 
@@ -84,7 +76,12 @@ func (fs *FileSystem) Open(name string) (http.File, error) {
 		return nil, &os.PathError{Op: "open", Path: origName, Err: os.ErrNotExist}
 	}
 
-	return &dirNamesFile{f, fs, name}, nil
+	dnf := &dirNamesFile{f, fs, name}
+	if name == "/" {
+		return rootFile{dnf}, nil
+	}
+
+	return dnf, nil
 }
 
 func (fs *FileSystem) computeHashes() {
