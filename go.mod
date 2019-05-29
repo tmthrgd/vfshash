@@ -1,4 +1,4 @@
-module tmthrgd.dev/go/vfshash
+module go.tmthrgd.dev/vfshash
 
 go 1.12
 

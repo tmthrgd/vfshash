@@ -1,7 +1,7 @@
 // Package vfshash offers a http.FileSystem that wraps an underlying
 // http.FileSystem to make resources content-addressable by adding a
 // truncated cryptographic digest to the file names.
-package vfshash // import "tmthrgd.dev/go/vfshash"
+package vfshash // import "go.tmthrgd.dev/vfshash"
 
 import (
 	"bytes"

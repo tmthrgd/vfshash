@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/shurcooL/vfsgen"
-	"tmthrgd.dev/go/vfshash"
+	"go.tmthrgd.dev/vfshash"
 )
 
 func ExampleFileSystem() {
