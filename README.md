@@ -7,13 +7,11 @@ A package to make a [`http.FileSystem`](https://godoc.org/net/http#FileSystem) c
 
 This package is useful for giving web assets content-addressable URLs which can safely be used with long cache times (a year or more).
 
-## Instalation
-
-```bash
-go get go.tmthrgd.dev/vfshash
-```
-
 ## Usage
+
+```go
+import "go.tmthrgd.dev/vfshash"
+```
 
 Follow the usage instructions for [shurcooL/vfsgen](https://github.com/shurcooL/vfsgen#usage) and wrap the fs with [`NewFileSystem`](https://godoc.org/go.tmthrgd.dev/vfshash#NewFileSystem) to generate a content-addressable file system.
 
@@ -28,7 +26,7 @@ if err != nil {
 }
 ```
 
-Embedded in the file system is a manifest that maps the original names for files to their content-addressable equivalents. This can be accessed with the [`AssetsName`](https://godoc.org/go.tmthrgd.dev/vfshash#AssetsName) API.
+Embedded in the file system is a manifest that maps the original names for files to their content-addressable equivalents. This can be accessed with the [`AssetNames`](https://godoc.org/go.tmthrgd.dev/vfshash#AssetNames) API.
 
 ```go
 names := vfshash.NewAssetNames(assets)
@@ -43,9 +41,9 @@ names.Lookup("/does.not.exist.txt")
 names.Open("/example.js")
 ```
 
-`AssetsName` implements `http.FileSystem` so it can be passed to [`http.FileServer`](https://godoc.org/net/http#FileServer) to serve assets with their original names.
+`AssetNames` implements `http.FileSystem` so it can be passed to [`http.FileServer`](https://godoc.org/net/http#FileServer) to serve assets with their original names.
 
-If the `http.FileSystem` passed to [`NewAssetNames`](https://godoc.org/go.tmthrgd.dev/vfshash#NewAssetNames) doesn't contain the manifest, [`Lookup`](https://godoc.org/go.tmthrgd.dev/vfshash#AssetsName.Lookup) will return the name as is. This makes development easier as a regular [`http.Dir`](https://godoc.org/net/http#Dir) can be passed in without problem.
+If the `http.FileSystem` passed to [`NewAssetNames`](https://godoc.org/go.tmthrgd.dev/vfshash#NewAssetNames) doesn't contain the manifest, [`Lookup`](https://godoc.org/go.tmthrgd.dev/vfshash#AssetNames.Lookup) will return the name as is. This makes development easier as a regular [`http.Dir`](https://godoc.org/net/http#Dir) can be passed in without problem.
 
 ## License
 
