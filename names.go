@@ -38,6 +38,14 @@ func (n *AssetNames) load() {
 	}
 }
 
+// IsContentAddressable reports whether the underlying http.FileSystem is using
+// content-addressable names. This is the case when it was wrapped with
+// FileSystem.
+func (n *AssetNames) IsContentAddressable() bool {
+	n.once.Do(n.load)
+	return n.names != nil
+}
+
 // Lookup returns the content-addressable name of an asset that matches the
 // given name.
 //

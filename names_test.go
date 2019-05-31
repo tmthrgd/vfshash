@@ -1,9 +1,12 @@
 package vfshash
 
 import (
+	"io"
+	"net/http"
 	"os"
 	"path"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -115,3 +118,42 @@ func TestAssetNamesOpen(t *testing.T) {
 		}
 	}
 }
+
+func TestIsContentAddressable(t *testing.T) {
+	assert.True(t, NewAssetNames(NewFileSystem(fs)).IsContentAddressable(),
+		"IsContentAddressable for mangled FileSystem")
+	assert.False(t, NewAssetNames(fs).IsContentAddressable(),
+		"IsContentAddressable for plain http.FileSystem")
+
+	assert.True(t, NewAssetNames(NewFileSystem(emptyDirFS{})).IsContentAddressable(),
+		"IsContentAddressable for empty mangled FileSystem")
+	assert.False(t, NewAssetNames(emptyDirFS{}).IsContentAddressable(),
+		"IsContentAddressable for empty plain http.FileSystem")
+}
+
+type emptyDirFS struct{}
+
+func (emptyDirFS) Open(name string) (http.File, error) {
+	if name != "/" {
+		return nil, &os.PathError{Op: "open", Path: name, Err: os.ErrNotExist}
+	}
+
+	return emptyDir{}, nil
+}
+
+type emptyDir struct{}
+
+func (emptyDir) Close() error                       { return nil }
+func (emptyDir) Read([]byte) (int, error)           { return 0, io.EOF }
+func (emptyDir) Seek(int64, int) (int64, error)     { return 0, nil }
+func (emptyDir) Readdir(int) ([]os.FileInfo, error) { return []os.FileInfo{}, nil }
+func (emptyDir) Stat() (os.FileInfo, error)         { return emptyDirInfo{}, nil }
+
+type emptyDirInfo struct{}
+
+func (emptyDirInfo) Name() string       { return "" }
+func (emptyDirInfo) Size() int64        { return 0 }
+func (emptyDirInfo) Mode() os.FileMode  { return 0 }
+func (emptyDirInfo) ModTime() time.Time { return time.Now() }
+func (emptyDirInfo) IsDir() bool        { return true }
+func (emptyDirInfo) Sys() interface{}   { return nil }
